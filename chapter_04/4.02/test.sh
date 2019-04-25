@@ -24,3 +24,6 @@ ls -ls cp_naive_file_with_holes file_with_holes file_without_holes \
 # files have equal content
 echo 'diff:'
 diff file_with_holes cp_file_with_holes
+
+rm cp_file_with_holes cp_naive_file_with_holes \
+    file_with_holes file_without_holes
