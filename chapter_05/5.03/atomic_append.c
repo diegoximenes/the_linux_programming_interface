@@ -10,6 +10,7 @@
 
 void usage(int status) {
     printf("Usage: %s [OPTION]... FILE NUM_BYTES\n", PROGRAM_NAME);
+    printf("\n -x don't use O_APPEND\n");
     exit(status);
 }
 
