@@ -52,6 +52,13 @@ int mydup(int oldfd) {
 }
 
 int mydup2(int oldfd, int newfd) {
+    if (oldfd == newfd) {
+        int flags = fcntl(newfd, F_GETFL);
+        if (flags == -1) {
+            return -1;
+        }
+        return newfd;
+    }
     close(newfd);
     return fcntl(oldfd, F_DUPFD, newfd);
 }
@@ -60,7 +67,7 @@ int main(int argc, char *argv[]) {
     // getopt vars
     int opt;
     // program vars
-    int fd, fd_dup, fd_dup2, flags;
+    int fd, fd_dup, fd_dup2, fd_dup3, flags;
     mode_t mode;
 
     // parse argv
@@ -97,6 +104,12 @@ int main(int argc, char *argv[]) {
     mywrite(fd_dup2, "again", 5);
 
     myclose(fd);
+    myclose(fd_dup2);
+
+    fd_dup3 = mydup2(100, 100);
+    if (fd_dup3 == -1) {
+        error("mydup2");
+    }
 
     exit(EXIT_SUCCESS);
 }
