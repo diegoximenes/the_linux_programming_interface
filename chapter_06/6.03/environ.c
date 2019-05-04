@@ -5,10 +5,6 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <limits.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/uio.h>
 
 #define PROGRAM_NAME "environ"
 
