@@ -13,12 +13,6 @@ void usage(int status) {
     exit(status);
 }
 
-void error(const char *msg) {
-    fprintf(stderr, "ERROR: ");
-    perror(msg);
-    exit(EXIT_FAILURE);
-}
-
 extern char **environ;
 
 void myclearenv() {
