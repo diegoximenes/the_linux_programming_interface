@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdint.h>
-#include <limits.h>
 
 #define PROGRAM_NAME "malloc_free"
 
