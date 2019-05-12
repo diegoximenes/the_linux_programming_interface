@@ -160,12 +160,8 @@ void list_processes(const char *user_name) {
                 printf("pid=%s, command_name=%s\n", pid, command_name);
             }
 
-            if (status_user_name != NULL) {
-                free(status_user_name);
-            }
-            if (command_name != NULL) {
-                free(command_name);
-            }
+            free(status_user_name);
+            free(command_name);
         }
     }
 }
