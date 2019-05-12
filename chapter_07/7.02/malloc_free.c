@@ -14,6 +14,12 @@ void usage(int status) {
     exit(status);
 }
 
+void error(const char *msg) {
+    fprintf(stderr, "ERROR: ");
+    perror(msg);
+    exit(EXIT_FAILURE);
+}
+
 // just a supposition
 unsigned word_size = __WORDSIZE / 8;
 
@@ -121,10 +127,20 @@ void add_to_free_list(void *ptr, size_t block_size) {
 }
 
 // set program break to a multiple of word size
-void align_program_break() {
-    uintptr_t addr = (uintptr_t) sbrk(0);
+void *align_program_break() {
+    void *program_break = sbrk(0);
+    if (program_break == (void *) -1) {
+        return NULL;
+    }
+
+    uintptr_t addr = (uintptr_t) program_break;
     uintptr_t inc = (word_size - addr % word_size) % word_size;
-    sbrk(inc);
+
+    program_break = sbrk(inc);
+    if (program_break == (void *) -1) {
+        return NULL;
+    }
+    return program_break;
 }
 
 void *mymalloc(size_t size) {
@@ -132,7 +148,9 @@ void *mymalloc(size_t size) {
         return NULL;
     }
 
-    align_program_break();
+    if (align_program_break() == NULL) {
+        return NULL;
+    }
 
     size_t block_size = sizeof(size_t) + size;
     // guarantees that the new block has enough size to insert it in the
