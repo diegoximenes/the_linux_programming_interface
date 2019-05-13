@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #define PROGRAM_NAME "pathname_processes"
 
@@ -34,21 +35,31 @@ void *mymalloc(size_t size) {
     return p;
 }
 
-DIR *myopendir(const char *path, int fail_on_error) {
+int valid_integer(const char *s) {
+    char *endptr = NULL;
+    errno = 0;
+    strtol(s, &endptr, 10);
+    if ((s == endptr) || (errno != 0)) {
+        return 0;
+    }
+    return 1;
+}
+
+DIR *myopendir(const char *path, int exit_on_error) {
     DIR *dir = opendir(path);
     if (dir == NULL) {
-        if ((fail_on_error == 1) || (errno != ENOENT)) {
+        if ((exit_on_error == 1) || (errno != ENOENT)) {
             error("opendir");
         }
     }
     return dir;
 }
 
-struct dirent *myreaddir(DIR *dir, int fail_on_error) {
+struct dirent *myreaddir(DIR *dir, int exit_on_error) {
     errno = 0;
     struct dirent *dir_entry = readdir(dir);
     if (dir_entry == NULL) {
-        if ((errno != 0) && (fail_on_error == 1)) {
+        if ((errno != 0) && (exit_on_error == 1)) {
             error("readdir");
         }
     }
@@ -58,10 +69,10 @@ struct dirent *myreaddir(DIR *dir, int fail_on_error) {
 void myreadlink(const char *pathname,
                 char *buf,
                 size_t bufsize,
-                int fail_on_error) {
+                int exit_on_error) {
     ssize_t buf_len = readlink(pathname, buf, bufsize);
     if (buf_len == -1) {
-        if ((fail_on_error == 1) ||
+        if ((exit_on_error == 1) ||
                 ((errno != ENOENT) && (errno != ENOTDIR))) {
             error("readlink");
         }
@@ -98,8 +109,8 @@ int has_pathname_open(const char *pid, const char *pathname) {
 
         char *fd = dir_entry->d_name;
         // check if it is a valid fd
-        if (strtol(fd, NULL, 10) != 0) {
-            unsigned fd_path_len = strlen(fd_dir_path) + strlen(fd) + 1;
+        if (valid_integer(fd)) {
+            size_t fd_path_len = strlen(fd_dir_path) + strlen(fd) + 1;
             char *fd_path = (char *) mymalloc(fd_path_len);
             strcpy(fd_path, fd_dir_path);
             strcpy(fd_path + strlen(fd_path), fd);
@@ -131,7 +142,7 @@ void pathname_processes(const char *pathname) {
 
         char *s_pid = dir_entry->d_name;
         // check if it is a valid pid
-        if (strtol(s_pid, NULL, 10) != 0) {
+        if (valid_integer(s_pid)) {
             if (has_pathname_open(s_pid, pathname)) {
                 printf("pid=%s\n", s_pid);
             }

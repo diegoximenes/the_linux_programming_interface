@@ -32,6 +32,45 @@ void *mymalloc(size_t size) {
     return p;
 }
 
+int valid_integer(const char *s) {
+    char *endptr = NULL;
+    errno = 0;
+    strtol(s, &endptr, 10);
+    if ((s == endptr) || (errno != 0)) {
+        return 0;
+    }
+    return 1;
+}
+
+DIR *myopendir(const char *path, int exit_on_error) {
+    DIR *dir = opendir(path);
+    if (dir == NULL) {
+        if ((exit_on_error == 1) || (errno != ENOENT)) {
+            error("opendir");
+        }
+    }
+    return dir;
+}
+
+struct dirent *myreaddir(DIR *dir, int exit_on_error) {
+    errno = 0;
+    struct dirent *dir_entry = readdir(dir);
+    if (dir_entry == NULL) {
+        if ((errno != 0) && (exit_on_error == 1)) {
+            error("readdir");
+        }
+    }
+    return dir_entry;
+}
+
+FILE *myfopen(const char *pathname, const char *mode, int exit_on_error) {
+    FILE *f = fopen(pathname, mode);
+    if ((f == NULL) && ((exit_on_error == 1) || (errno != ENOENT))) {
+        error("fopen");
+    }
+    return f;
+}
+
 void myfclose(FILE *stream) {
     if (fclose(stream) != 0) {
         error("fclose");
@@ -91,13 +130,14 @@ void get_status(const char *pid, char **status_user_name, char **command_name) {
     strcpy(f_path + 6, pid);
     strcpy(f_path + strlen(f_path), "/status");
 
-    FILE *f = fopen(f_path, "r");
+    FILE *f = myfopen(f_path, "r", 0);
+    free(f_path);
     // process related to pid can be killed between readdir and this fopen
     if (f == NULL) {
         return;
     }
-    free(f_path);
 
+    // iterate through lines of status file
     char *line = (char *) mymalloc(4096);
     while (1) {
         ssize_t read = mygetline(&line, f);
@@ -132,24 +172,18 @@ void list_processes(const char *user_name) {
         return;
     }
 
-    DIR *dir = opendir("/proc/");
-    if (dir == NULL) {
-        error("opendir");
-    }
+    DIR *dir = myopendir("/proc/", 1);
 
+    // iterate through pids
     while (1) {
-        errno = 0;
-        struct dirent *dir_entry = readdir(dir);
+        struct dirent *dir_entry = myreaddir(dir, 1);
         if (dir_entry == NULL) {
-            if (errno != 0) {
-                error("readdir");
-            }
             break;
         }
 
         char *pid = dir_entry->d_name;
         // check if it is a valid pid
-        if (strtol(pid, NULL, 10) != 0) {
+        if (valid_integer(pid)) {
             char *status_user_name = NULL;
             char *command_name = NULL;
             get_status(pid, &status_user_name, &command_name);
