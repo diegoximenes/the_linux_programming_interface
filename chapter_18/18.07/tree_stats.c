@@ -26,7 +26,8 @@ void mynftw(const char *dirpath,
                        const struct stat *sb,
                        int typeflag,
                        struct FTW *ftwbuf),
-            int nopenfd, int flags) {
+            int nopenfd,
+            int flags) {
     if (nftw(dirpath, fn, nopenfd, flags) == -1) {
         error("nftw");
     }
@@ -77,7 +78,7 @@ int handle_file(const char *pathname,
 }
 
 void tree_stats(const char *dir_path) {
-    nftw(dir_path, handle_file, 10, 0);
+    mynftw(dir_path, handle_file, 10, 0);
     printf("reg=%u\n", reg);
     printf("dir=%u\n", dir);
     printf("chr=%u\n", chr);
