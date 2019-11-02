@@ -27,6 +27,12 @@ void mysigaction(int sig,
     }
 }
 
+void mysigemptyset(sigset_t *set) {
+    if (sigemptyset(set) == -1) {
+        error("sigemptyset");
+    }
+}
+
 void mysigfillset(sigset_t *set) {
     if (sigfillset(set) == -1) {
         error("sigemptyset");
@@ -76,6 +82,8 @@ int main(int argc, char *argv[]) {
 
     // set default signal handler
     struct sigaction sa;
+    sa.sa_flags = 0;
+    mysigemptyset(&sa.sa_mask);
     sa.sa_handler = &default_sighandler;
     mysigaction(2, &sa, NULL);
 

@@ -91,6 +91,8 @@ int main(int argc, char *argv[]) {
 
     // set handler
     struct sigaction sa;
+    sa.sa_flags = 0;
+    mysigemptyset(&sa.sa_mask);
     sa.sa_handler = &sighandler;
     mysigaction(SIGCONT, &sa, NULL);
 

@@ -26,6 +26,12 @@ void mysigaction(int sig,
     }
 }
 
+void mysigemptyset(sigset_t *set) {
+    if (sigemptyset(set) == -1) {
+        error("sigemptyset");
+    }
+}
+
 void myraise(int sig) {
     if (raise(sig) != 0) {
         // it is not clear if errno is set in case of errors
@@ -78,6 +84,8 @@ int main(int argc, char *argv[]) {
 
     if (add_sig_handler) {
         struct sigaction sa;
+        sa.sa_flags = 0;
+        mysigemptyset(&sa.sa_mask);
         sa.sa_handler = &sighandler;
         mysigaction(SIGABRT, &sa, NULL);
     }
