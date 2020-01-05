@@ -43,8 +43,8 @@ void mygetrusage(int who, struct rusage *r_usage) {
 
 double rusage_time(const struct rusage *r_usage) {
     double time =
-        r_usage->ru_utime.tv_sec + r_usage->ru_utime.tv_sec / 1000000.0;
-    time += r_usage->ru_stime.tv_sec + r_usage->ru_stime.tv_sec / 1000000.0;
+        r_usage->ru_utime.tv_sec + r_usage->ru_utime.tv_usec / 1000000.0;
+    time += r_usage->ru_stime.tv_sec + r_usage->ru_stime.tv_usec / 1000000.0;
     return time;
 }
 
