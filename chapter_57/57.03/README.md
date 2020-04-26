@@ -1,0 +1,2 @@
+- open a terminal and execute: `./server`
+- open another terminal and execute `./client`
