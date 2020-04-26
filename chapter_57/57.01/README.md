@@ -1,0 +1,2 @@
+- open a terminal and execute: `./receiver`
+- open another terminal and execute `./sender`
